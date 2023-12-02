@@ -1,7 +1,33 @@
-export async function createTodo(title: string) {}
+"use server";
 
-export async function readTodo() {}
+import createSupabaseServerClient from "@/lib/supabase/server";
+import { revalidatePath, unstable_noStore as noStore } from "next/cache";
 
-export async function deleteTodoById(id: string) {}
+export async function createTodo(title: string) {
+	const supabase = await createSupabaseServerClient();
 
-export async function updateTodoById(id: string, completed: boolean) {}
+	const result = await supabase.from("todo-demo").insert({ title }).single();
+	revalidatePath("/todo"); // pang refresh para nag rereflect agad changes
+
+	return JSON.stringify(result);
+}
+
+export async function readTodo() {
+	noStore();
+	const supabase = await createSupabaseServerClient();
+	return await supabase.from("todo-demo").select("*");
+}
+
+export async function deleteTodoById(id: string) {
+	const supabase = await createSupabaseServerClient();
+
+	await supabase.from("todo-demo").delete().eq("id", id);
+	revalidatePath("/todo");
+}
+
+export async function updateTodoById(id: string, completed: boolean) {
+	const supabase = await createSupabaseServerClient();
+
+	await supabase.from("todo-demo").update({completed: completed}).eq("id", id);
+	revalidatePath("/todo");
+}

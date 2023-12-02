@@ -5,19 +5,13 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
-import {
-	Form,
-	FormControl,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { useTransition } from "react";
 import { cn } from "@/lib/utils";
+import { createTodo } from "../actions";
 
 const FormSchema = z.object({
 	title: z.string().min(1, {
@@ -36,23 +30,37 @@ export default function CreateForm() {
 	});
 
 	function onSubmit(data: z.infer<typeof FormSchema>) {
-		toast({
-			title: "You are successfully create todo.",
-			description: (
-				<pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-					<code className="text-white">{data.title} is created</code>
-				</pre>
-			),
+		startTransition(async () => {
+			const result = await createTodo(data.title);
+
+			const { error } = JSON.parse(result);
+
+			if (!error?.message) {
+				toast({
+					title: "You are successfully create todo.",
+					description: (
+						<pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+							<code className="text-white">{data.title} is created</code>
+						</pre>
+					),
+				});
+				form.reset();
+			} else {
+				toast({
+					title: error.message.toString(),
+					description: (
+						<pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+							<code className="text-white">{error.message.toString()} ERROR</code>
+						</pre>
+					),
+				});
+			}
 		});
-		form.reset();
 	}
 
 	return (
 		<Form {...form}>
-			<form
-				onSubmit={form.handleSubmit(onSubmit)}
-				className="w-full space-y-6"
-			>
+			<form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
 				<FormField
 					control={form.control}
 					name="title"
@@ -60,11 +68,7 @@ export default function CreateForm() {
 						<FormItem>
 							<FormLabel>Title</FormLabel>
 							<FormControl>
-								<Input
-									placeholder="todo title"
-									{...field}
-									onChange={field.onChange}
-								/>
+								<Input placeholder="todo title" {...field} onChange={field.onChange} />
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -73,7 +77,7 @@ export default function CreateForm() {
 
 				<Button type="submit" className="w-full flex gap-2">
 					Create
-					<AiOutlineLoading3Quarters className={cn("animate-spin")} />
+					<AiOutlineLoading3Quarters className={cn("animate-spin", { hidden: !isPending })} />
 				</Button>
 			</form>
 		</Form>
