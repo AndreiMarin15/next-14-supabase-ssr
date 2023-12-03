@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import CreateForm from "./components/CreateForm";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,8 @@ export default async function Page() {
 	}
 
 	const { data: todos } = await readTodo();
+
+	
 
 	return (
 		<div className="flex justify-center items-center h-screen">
