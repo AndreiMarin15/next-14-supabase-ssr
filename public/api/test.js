@@ -1,6 +1,6 @@
 const hello = "hello";
 
-export class Testing {
+class Testing {
 	constructor(apiToken) {
 		this.apiToken = apiToken;
 	}
