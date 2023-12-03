@@ -1,6 +1,7 @@
-import createSupabaseServerClient from "@/lib/supabase/server";
-import { revalidatePath, unstable_noStore as noStore } from "next/cache";
+const createSupabaseServerClient = require("@/lib/supabase/server");
+const { revalidatePath, unstable_noStore: noStore } = require("next/cache");
 
+const hello = "hello";
 
 class Testing {
 	constructor(apiToken) {
@@ -34,11 +35,12 @@ class Testing {
 	}
 
 	async getFirstTodo() {
-		const { data: todos } = await readTodo();
+		const { data: todos } = await this.readTodo();
 
 		return todos[0].title.toString()
 	}
 }
 
-
+// Attach Testing to the global window object
+global.Testing = Testing;
 window.Testing = Testing;
