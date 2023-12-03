@@ -25,3 +25,6 @@ class Testing {
 		}
 	}
 }
+
+
+window.Testing = Testing;
