@@ -1,4 +1,6 @@
-const hello = "hello";
+import createSupabaseServerClient from "@/lib/supabase/server";
+import { revalidatePath, unstable_noStore as noStore } from "next/cache";
+
 
 class Testing {
 	constructor(apiToken) {
@@ -23,6 +25,18 @@ class Testing {
 		} else {
 			return "ERROR";
 		}
+	}
+
+	async readTodo() {
+		noStore();
+		const supabase = await createSupabaseServerClient();
+		return await supabase.from("todo-demo").select("*");
+	}
+
+	async getFirstTodo() {
+		const { data: todos } = await readTodo();
+
+		return todos[0].title.toString()
 	}
 }
 
